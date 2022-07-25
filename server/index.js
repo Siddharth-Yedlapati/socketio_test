@@ -1,25 +1,18 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 
 const http = require("http");
-const { Server } = require('socket.io');
-
+const socketio = require("socket.io");
+const gameLogic = require('./game-logic');
 const cors = require("cors");
 app.use(cors());
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"],
-    },
-});
+const io = socketio(server)
 
-io.on("connection", (socket) => {
-console.log(`User Connected: ${socket.id}`);
-});
+io.on('connection', client => {
+    gameLogic.initializeGame(io, client)
+})
 
-server.listen(3001, () => {
-    console.log("SERVER IS RUNNING");
-});
+server.listen(process.env.PORT || 8000)
